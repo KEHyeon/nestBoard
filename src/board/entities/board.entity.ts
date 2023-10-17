@@ -14,7 +14,13 @@ export class Board {
   id: number;
 
   @Column()
+  title: string;
+
+  @Column()
   content: string;
+
+  @Column()
+  author: string;
 
   @Column()
   password: string;
