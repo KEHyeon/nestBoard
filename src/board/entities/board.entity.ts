@@ -38,4 +38,9 @@ export class Board {
     cascade: true,
   })
   images: Image[];
+
+  @OneToMany(() => Comment, (comment) => comment.board, {
+    cascade: true,
+  })
+  comments: Comment[];
 }

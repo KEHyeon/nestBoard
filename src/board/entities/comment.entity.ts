@@ -1,4 +1,5 @@
-import { Entity } from 'typeorm';
+import { Entity, ManyToOne } from 'typeorm';
+import { Board } from './board.entity';
 
 @Entity()
 export class Comment {
@@ -9,4 +10,9 @@ export class Comment {
   created_at: Date;
 
   password: string;
+
+  @ManyToOne(() => Board, (board) => board.comments, {
+    onDelete: 'CASCADE',
+  })
+  board: Board;
 }
