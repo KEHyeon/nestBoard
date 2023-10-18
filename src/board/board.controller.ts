@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UseGuards,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { CreateBoardDto } from './dtos/create-board.dto';
 import { BoardService } from './board.service';
@@ -16,6 +17,7 @@ import { UpdateBoardDto } from './dtos/update-board.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/common/utils';
 import { BoardIntercepter } from './intercepters/Board.intercepter';
+import { Paginate, PaginateQuery } from 'nestjs-paginate/lib/decorator';
 
 @Controller('board')
 export class BoardController {
@@ -56,8 +58,8 @@ export class BoardController {
   }
 
   @Get()
-  async findAll() {
-    return await this.boardService.findAll();
+  async findAll(@Paginate() query: PaginateQuery) {
+    return await this.boardService.findAll(query);
   }
 
   @Get('/:id')

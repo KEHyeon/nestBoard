@@ -13,6 +13,7 @@ import * as bcrypt from 'bcryptjs';
 import { UpdateBoardDto } from './dtos/update-board.dto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { PaginateQuery, paginate } from 'nestjs-paginate';
 @Injectable()
 export class BoardService {
   constructor(
@@ -94,7 +95,20 @@ export class BoardService {
     return board;
   }
 
-  async findAll() {
-    return await this.boardRepo.find();
+  async findAll(query: PaginateQuery) {
+    return paginate(query, this.boardRepo, {
+      sortableColumns: ['id', 'created_at'],
+      defaultSortBy: [['created_at', 'ASC']],
+      searchableColumns: ['title', 'content'],
+      select: [
+        'id',
+        'title',
+        'content',
+        'author',
+        'modifier',
+        'created_at',
+        'updated_at',
+      ],
+    });
   }
 }
