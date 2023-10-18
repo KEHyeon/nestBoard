@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Image } from './image.entity';
+import { Comment } from './comment.entity';
 
 @Entity()
 export class Board {

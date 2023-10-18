@@ -7,6 +7,7 @@ import { Board } from './board/entities/board.entity';
 import { Image } from './board/entities/image.entity';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { Comment } from './board/entities/comment.entity';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
