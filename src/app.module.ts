@@ -17,7 +17,7 @@ import { join } from 'path';
       password: '1234',
       database: 'board',
       synchronize: true,
-      entities: [Board, Image],
+      entities: [Board, Image, Comment],
     }),
     BoardModule,
   ],

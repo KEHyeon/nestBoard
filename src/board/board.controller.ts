@@ -11,9 +11,9 @@ import {
   Delete,
   Query,
 } from '@nestjs/common';
-import { CreateBoardDto } from './dtos/create-board.dto';
+import { CreateBoardDto } from './dtos/board/create-board.dto';
 import { BoardService } from './board.service';
-import { UpdateBoardDto } from './dtos/update-board.dto';
+import { UpdateBoardDto } from './dtos/board/update-board.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/common/utils';
 import { BoardIntercepter } from './intercepters/Board.intercepter';
