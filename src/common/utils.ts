@@ -6,15 +6,14 @@ import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer
 const createFolder = (folder: string) => {
   try {
     console.log('Create a root uploads folder...');
-    fs.mkdirSync(path.join(__dirname, '..', `uploads`));
+    fs.mkdirSync(path.join(__dirname, '..', '..', `static`));
   } catch (error) {
     console.log('The folder already exists...');
   }
-
   try {
     console.log(`Create a ${folder} uploads folder...`);
 
-    fs.mkdirSync(path.join(__dirname, '..', `uploads/${folder}`));
+    fs.mkdirSync(path.join(__dirname, '..', '..', `static/${folder}`));
   } catch (error) {
     console.log(`The ${folder} folder already exists...`);
   }
@@ -25,7 +24,7 @@ const storage = (folder: string): multer.StorageEngine => {
 
   return multer.diskStorage({
     destination(req, file, cb) {
-      const folderName = path.join(__dirname, '..', `uploads/${folder}`);
+      const folderName = path.join(__dirname, '..', '..', `static/${folder}`);
       cb(null, folderName);
     },
     filename(req, file, cb) {
@@ -34,7 +33,7 @@ const storage = (folder: string): multer.StorageEngine => {
       const fileName = `${path.basename(
         file.originalname,
         ext,
-      )}${Date.now()}${ext}}`;
+      )}${Date.now()}${ext}`;
 
       cb(null, fileName);
     },

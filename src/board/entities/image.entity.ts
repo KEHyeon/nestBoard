@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -15,8 +16,7 @@ export class Image {
   @Column()
   path: string;
 
-  @ManyToOne(() => Board, (board) => board.Images)
-  @Column()
+  @ManyToOne(() => Board, (board) => board.images)
   board: Board;
 
   @CreateDateColumn()

@@ -2,11 +2,12 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Board } from './entities/board.entity';
 import { Image } from './entities/image.entity';
-import { Repository } from 'typeorm';
+import { JoinColumn, Repository } from 'typeorm';
 import { CreateBoardDto } from './dtos/create-board.dto';
 import * as bcrypt from 'bcryptjs';
 import { UpdateBoardDto } from './dtos/update-board.dto';
@@ -46,9 +47,49 @@ export class BoardService {
     return await this.boardRepo.find();
   }
 
-  async uploadImg(id: number, files: Express.Multer.File[]) {
-    const fileName = `${files[0].filename}`;
-    console.log(fileName);
-    const newImg = await this.imageRepo;
+  async uploadImg(id: number, images: Express.Multer.File[]) {
+    const board = await this.boardRepo.findOne({
+      where: { id },
+      relations: ['images'],
+    });
+    if (!board) {
+      throw new NotFoundException('board not found');
+    }
+    if (board.images.length + images.length > 5) {
+      throw new BadRequestException('max is 5');
+    }
+
+    const url = 'http://localhost:8000/board/';
+    return await Promise.all(
+      images.map(async (image) => {
+        const createImg = this.imageRepo.create({
+          board,
+          path: url + image.filename,
+        });
+        console.log(createImg);
+        return await this.imageRepo.save(createImg);
+      }),
+    );
+  }
+
+  async getImages(id: number) {
+    const board = await this.boardRepo.findOne({
+      where: { id },
+      relations: ['images'],
+    });
+    return board.images;
+  }
+
+  async getOneImage(id: number) {
+    const image = await this.imageRepo.findOneBy({ id });
+    if (!image) {
+      throw new NotFoundException('Image not found');
+    }
+    return image;
+  }
+
+  async deleteImage(id: number) {
+    await this.imageRepo.delete({ id });
+    return;
   }
 }

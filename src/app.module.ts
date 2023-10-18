@@ -4,7 +4,9 @@ import { AppService } from './app.service';
 import { BoardModule } from './board/board.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Board } from './board/entities/board.entity';
-
+import { Image } from './board/entities/image.entity';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -15,7 +17,7 @@ import { Board } from './board/entities/board.entity';
       password: '1234',
       database: 'board',
       synchronize: true,
-      entities: [Board],
+      entities: [Board, Image],
     }),
     BoardModule,
   ],

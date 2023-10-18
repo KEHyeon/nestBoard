@@ -5,13 +5,14 @@ import {
   Patch,
   Body,
   Param,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { CreateBoardDto } from './dtos/create-board.dto';
 import { BoardService } from './board.service';
 import { UpdateBoardDto } from './dtos/update-board.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { multerOptions } from 'src/common/utils';
 
 @Controller('board')
 export class BoardController {
@@ -37,9 +38,22 @@ export class BoardController {
     return await this.boardService.findOne(parseInt(id));
   }
 
-  @Post('/upload')
-  @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() files: Array<Express.Multer.File>) {
-    return this.boardService.uploadImg(files);
+  @Get('/image/:id')
+  async getImageList(@Param('id') id: string) {
+    return await this.boardService.getImages(parseInt(id));
+  }
+
+  @Get('/image/detail/:id')
+  async getImageDetail(@Param('id') id: string) {
+    return await this.boardService.getOneImage(parseInt(id));
+  }
+
+  @Post('/image/:id')
+  @UseInterceptors(FilesInterceptor('images', 5, multerOptions('board')))
+  uploadFile(
+    @Param('id') id: string,
+    @UploadedFiles() images: Array<Express.Multer.File>,
+  ) {
+    return this.boardService.uploadImg(parseInt(id), images);
   }
 }

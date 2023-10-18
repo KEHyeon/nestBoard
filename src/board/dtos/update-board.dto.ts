@@ -5,6 +5,10 @@ export class UpdateBoardDto {
   @IsString()
   content: string;
 
+  @IsOptional()
+  @IsString()
+  title: string;
+
   @IsString()
   password: string;
 }

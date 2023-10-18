@@ -6,9 +6,7 @@ import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.useStaticAssets(join(__dirname, './common', 'uploads'), {
-    prefix: '/media',
-  });
+  app.useStaticAssets(join(__dirname, '..', 'static'));
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(8000);
 }
