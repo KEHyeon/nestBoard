@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Board } from './entities/board.entity';
-import { CreateCommentdDto } from './dtos/comment/create-comment.dto';
+import { CreateCommentDto } from './dtos/comment/create-comment.dto';
 import { BoardService } from './board.service';
 import { Comment } from './entities/comment.entity';
 
@@ -10,16 +10,31 @@ import { Comment } from './entities/comment.entity';
 export class CommentService {
   constructor(
     @InjectRepository(Comment) private commentRepo: Repository<Comment>,
-    @InjectRepository(Board) private boardRepo: Repository<Comment>,
+    @InjectRepository(Board) private boardRepo: Repository<Board>,
     private boardService: BoardService,
   ) {}
-
-  async create(boardId: number, createCommentDto: CreateCommentdDto) {
+  async findOne(id: number) {
+    const comment = await this.commentRepo.findOneBy({ id });
+    if (!comment) {
+      throw new NotFoundException('comment not found');
+    }
+    return comment;
+  }
+  async create(boardId: number, createCommentDto: CreateCommentDto) {
     const board = await this.boardService.findOne(boardId);
     const comment = await this.commentRepo.create({
       ...createCommentDto,
       board: board,
     });
-    return await this.commentRepo.save(comment);
+    await this.commentRepo.save(comment);
+    return await this.findOne(comment.id);
+  }
+
+  async find(boardId: number) {
+    const board = await this.boardRepo.findOne({
+      where: { id: boardId },
+      relations: ['comments'],
+    });
+    return board.comments;
   }
 }

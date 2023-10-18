@@ -18,10 +18,15 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/common/utils';
 import { BoardIntercepter } from './intercepters/Board.intercepter';
 import { Paginate, PaginateQuery } from 'nestjs-paginate/lib/decorator';
+import { CreateCommentDto } from './dtos/comment/create-comment.dto';
+import { CommentService } from './comment.service';
 
 @Controller('board')
 export class BoardController {
-  constructor(private boardService: BoardService) {}
+  constructor(
+    private boardService: BoardService,
+    private commentService: CommentService,
+  ) {}
 
   @Post()
   @UseInterceptors(FilesInterceptor('images', 5, multerOptions('board')))
@@ -65,5 +70,18 @@ export class BoardController {
   @Get('/:id')
   async findOne(@Param('id') id: string) {
     return await this.boardService.findOne(parseInt(id));
+  }
+
+  @Post('/comment/:id')
+  async addComment(
+    @Param('id') id: string,
+    @Body() createCommentDto: CreateCommentDto,
+  ) {
+    return await this.commentService.create(parseInt(id), createCommentDto);
+  }
+
+  @Get('/comment/:id')
+  async getComment(@Param('id') id: string) {
+    return await this.commentService.find(parseInt(id));
   }
 }
