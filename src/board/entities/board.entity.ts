@@ -34,6 +34,8 @@ export class Board {
   @Column({ default: null })
   modifier: string;
 
-  @OneToMany(() => Image, (image) => image.board)
+  @OneToMany(() => Image, (image) => image.board, {
+    cascade: true,
+  })
   images: Image[];
 }

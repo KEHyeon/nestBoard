@@ -16,7 +16,9 @@ export class Image {
   @Column()
   path: string;
 
-  @ManyToOne(() => Board, (board) => board.images)
+  @ManyToOne(() => Board, (board) => board.images, {
+    onDelete: 'CASCADE',
+  })
   board: Board;
 
   @CreateDateColumn()

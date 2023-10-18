@@ -11,6 +11,8 @@ import { JoinColumn, Repository } from 'typeorm';
 import { CreateBoardDto } from './dtos/create-board.dto';
 import * as bcrypt from 'bcryptjs';
 import { UpdateBoardDto } from './dtos/update-board.dto';
+import * as fs from 'fs';
+import * as path from 'path';
 @Injectable()
 export class BoardService {
   constructor(
@@ -18,25 +20,74 @@ export class BoardService {
     @InjectRepository(Image) private imageRepo: Repository<Image>,
   ) {}
 
-  async create(createBoardDto: CreateBoardDto) {
+  async create(images: Express.Multer.File[], createBoardDto: CreateBoardDto) {
     const password = createBoardDto.password;
     const salt = await bcrypt.genSalt();
     createBoardDto.password = await bcrypt.hash(password, salt);
     const board = this.boardRepo.create(createBoardDto);
-    return await this.boardRepo.save(board);
+    await this.boardRepo.save(board);
+    const url = 'http://localhost:8000/board/';
+    await Promise.all(
+      images.map((image) => {
+        const createImg = this.imageRepo.create({
+          board,
+          path: url + image.filename,
+        });
+        return this.imageRepo.save(createImg);
+      }),
+    );
+    return await this.boardRepo.findOne({
+      where: { id: board.id },
+      relations: ['images'],
+    });
   }
 
-  async update(id: number, updateBoardDto: UpdateBoardDto) {
-    const board = await this.findOne(id);
-    const { password, content } = updateBoardDto;
-    if (!(await bcrypt.compare(password, board.password))) {
-      throw new UnauthorizedException('incorrect password');
-    }
-    await this.boardRepo.update(id, { content });
+  async update(
+    id: number,
+    images: Express.Multer.File[],
+    updateBoardDto: UpdateBoardDto,
+  ) {
+    const board = await this.boardRepo.findOne({
+      where: { id },
+      relations: ['images'],
+    });
+
+    await Promise.all(
+      board.images.map((image) => {
+        const fileName = path.basename(image.path);
+        fs.unlink(`static/board/${fileName}`, (err) => {
+          if (err) throw err;
+        });
+        this.imageRepo.delete(image.id);
+        return;
+      }),
+    );
+
+    const { content, title } = updateBoardDto;
+    const url = 'http://localhost:8000/board/';
+    await Promise.all([
+      images?.map((image) => {
+        const createImg = this.imageRepo.create({
+          board,
+          path: url + image.filename,
+        });
+        return this.imageRepo.save(createImg);
+      }),
+      this.boardRepo.update(id, { content, title }),
+    ]);
     return await this.findOne(id);
   }
+
+  async delete(id: number) {
+    await this.boardRepo.delete(id);
+    return;
+  }
+
   async findOne(id: number) {
-    const board = await this.boardRepo.findOneBy({ id });
+    const board = await this.boardRepo.findOne({
+      where: { id },
+      relations: ['images'],
+    });
     if (!board) {
       throw new NotFoundException('board not found');
     }
@@ -45,51 +96,5 @@ export class BoardService {
 
   async findAll() {
     return await this.boardRepo.find();
-  }
-
-  async uploadImg(id: number, images: Express.Multer.File[]) {
-    const board = await this.boardRepo.findOne({
-      where: { id },
-      relations: ['images'],
-    });
-    if (!board) {
-      throw new NotFoundException('board not found');
-    }
-    if (board.images.length + images.length > 5) {
-      throw new BadRequestException('max is 5');
-    }
-
-    const url = 'http://localhost:8000/board/';
-    return await Promise.all(
-      images.map(async (image) => {
-        const createImg = this.imageRepo.create({
-          board,
-          path: url + image.filename,
-        });
-        console.log(createImg);
-        return await this.imageRepo.save(createImg);
-      }),
-    );
-  }
-
-  async getImages(id: number) {
-    const board = await this.boardRepo.findOne({
-      where: { id },
-      relations: ['images'],
-    });
-    return board.images;
-  }
-
-  async getOneImage(id: number) {
-    const image = await this.imageRepo.findOneBy({ id });
-    if (!image) {
-      throw new NotFoundException('Image not found');
-    }
-    return image;
-  }
-
-  async deleteImage(id: number) {
-    await this.imageRepo.delete({ id });
-    return;
   }
 }
