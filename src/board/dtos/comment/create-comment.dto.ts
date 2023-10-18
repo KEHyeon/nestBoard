@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class CreateBoardDto {
+export class CreateCommentdDto {
   @IsString()
   author: string;
 
