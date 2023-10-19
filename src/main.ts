@@ -6,10 +6,8 @@ import { join } from 'path';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    cors: true,
-  });
-
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.enableCors();
   const config = new DocumentBuilder().setTitle('Board Swagger').build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
