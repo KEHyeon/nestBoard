@@ -4,16 +4,14 @@ import { IsString, IsOptional } from 'class-validator';
 export class UpdateBoardDto {
   @IsString()
   @IsOptional()
+  @ApiProperty({
+    required: false,
+  })
   content: string;
 
   @IsString()
   @ApiProperty()
   password: string;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty({ required: false })
-  author: string;
 
   @IsString()
   @IsOptional()
@@ -27,4 +25,8 @@ export class UpdateBoardDto {
     items: { type: 'string', format: 'binary' },
   })
   images: any[];
+
+  @IsString()
+  @ApiProperty()
+  modifier: string;
 }
