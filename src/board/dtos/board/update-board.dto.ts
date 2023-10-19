@@ -1,14 +1,30 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional } from 'class-validator';
 
 export class UpdateBoardDto {
-  @IsOptional()
   @IsString()
+  @IsOptional()
   content: string;
 
-  @IsOptional()
   @IsString()
-  title: string;
+  @ApiProperty()
+  password: string;
 
   @IsString()
-  password: string;
+  @IsOptional()
+  @ApiProperty({ required: false })
+  author: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ required: false })
+  title: string;
+
+  @IsOptional()
+  @ApiProperty({
+    required: false,
+    type: 'array',
+    items: { type: 'string', format: 'binary' },
+  })
+  images: any[];
 }

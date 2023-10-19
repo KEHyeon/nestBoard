@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Image } from './image.entity';
 import { Comment } from './comment.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class Board {
