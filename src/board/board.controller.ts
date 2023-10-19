@@ -20,7 +20,10 @@ import { BoardIntercepter } from './intercepters/Board.intercepter';
 import { Paginate, PaginateQuery } from 'nestjs-paginate/lib/decorator';
 import { CreateCommentDto } from './dtos/comment/create-comment.dto';
 import { CommentService } from './comment.service';
+import { DeleteCommentDto } from './dtos/comment/delete-comment.dto';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('board')
 @Controller('board')
 export class BoardController {
   constructor(
@@ -30,6 +33,11 @@ export class BoardController {
 
   @Post()
   @UseInterceptors(FilesInterceptor('images', 5, multerOptions('board')))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Create a board',
+    type: CreateBoardDto,
+  })
   async createBoard(
     @UploadedFiles() images: Array<Express.Multer.File>,
     @Body() createBoardDto: CreateBoardDto,
@@ -83,5 +91,13 @@ export class BoardController {
   @Get('/comment/:id')
   async getComment(@Param('id') id: string) {
     return await this.commentService.find(parseInt(id));
+  }
+
+  @Delete('/comment/:id')
+  async deleteComment(
+    @Param('id') id: string,
+    @Body() { password }: DeleteCommentDto,
+  ) {
+    return await this.commentService.delete(parseInt(id), password);
   }
 }
