@@ -1,27 +1,29 @@
 version: '3.7'
-service:
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
+services:
+  nest:
+    image: nest
     ports:
       - '8000:8000'
-    networks:
-      - febnine-net
     depends_on:
       - mysql
-  mysql:
-    container_name: febnine-mysql
-    image: mysql
-    env_file:
-      - .env.production
-    ports:
-      - "3306:3306"
     networks:
-      - febnine-net
-    volumes;
-      - mysql:/var/lib/mysql
-  volumes:
-    mysql:
-  networks:
-   febnine-net
+      - board
+  mysql:
+    image: mysql
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_PASSWORD=1234
+      - MYSQL_USER=root
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=board
+    ports:
+      - '3306:3306'
+    networks:
+      - board
+
+volumes:
+  db: {}
+
+networks:
+  board: {}

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CallHandler,
   ExecutionContext,
   Injectable,
@@ -16,6 +17,9 @@ export class BoardIntercepter implements NestInterceptor {
     console.log(request);
     const id = request.params.id;
     const password = request.body.password;
+    if (!password) {
+      throw new BadRequestException('password를 주세요');
+    }
     const board = await this.boardService.findOne(id);
     if (!(await bcrypt.compare(password, board.password))) {
       throw new UnauthorizedException('incorrect password');
