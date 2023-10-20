@@ -14,4 +14,14 @@ service:
     container_name: febnine-mysql
     image: mysql
     env_file:
-      - .env.
+      - .env.production
+    ports:
+      - "3306:3306"
+    networks:
+      - febnine-net
+    volumes;
+      - mysql:/var/lib/mysql
+  volumes:
+    mysql:
+  networks:
+   febnine-net

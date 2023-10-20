@@ -77,7 +77,7 @@ export class BoardController {
   })
   @ApiOperation({
     summary: '게시글 수정',
-    description: '게시글 수정 api',
+    description: '게시글 수정 api 이미지는 원래 이미지를 덮어쓴다.',
   })
   @Serialize(ResCreateBoardDto)
   async updateBoard(
@@ -88,6 +88,14 @@ export class BoardController {
     return this.boardService.update(parseInt(id), images, updateBoardDto);
   }
 
+  @UseInterceptors(BoardIntercepter)
+  @ApiBody({ type: DeleteBoardDto })
+  @ApiCreatedResponse({ type: ResCreateBoardDto })
+  @Serialize(ResCreateBoardDto)
+  @Post('verify/:id')
+  async verifyPassword(@Param('id') id: string) {
+    return await this.boardService.findOne(parseInt(id));
+  }
   @Delete('/:id')
   @UseInterceptors(BoardIntercepter)
   @ApiBody({ type: DeleteBoardDto })
@@ -118,7 +126,7 @@ export class BoardController {
   @Post('/like/:id')
   @ApiOperation({
     summary: '게시글 좋아요',
-    description: '게시글 좋아요 api',
+    description: '게시글 좋아요 api 1분당 한 번',
   })
   likePost(@Param('id') id: number) {
     return this.boardService.likePost(id);
@@ -129,7 +137,7 @@ export class BoardController {
   @Post('/view/:id')
   @ApiOperation({
     summary: '게시글 조회수 증가',
-    description: '게시글 조회수 증가 api',
+    description: '게시글 조회수 증가 api 1분당 한 번',
   })
   viewPost(@Param('id') id: number) {
     return this.boardService.viewPost(id);
@@ -143,6 +151,7 @@ export class BoardController {
     summary: '게시글 detail 받아오기',
     description: '게시글 detail 받아오기 api',
   })
+  @Serialize(ResCreateBoardDto)
   async findOne(@Param('id') id: string) {
     return await this.boardService.findOne(parseInt(id));
   }

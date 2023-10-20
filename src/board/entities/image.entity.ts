@@ -11,7 +11,9 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class Image {
+  @Expose()
   @PrimaryGeneratedColumn()
+  @ApiProperty()
   id: number;
 
   @Expose()
@@ -24,6 +26,8 @@ export class Image {
   })
   board: Board;
 
+  @Expose()
   @CreateDateColumn()
+  @ApiProperty()
   created_at: Date;
 }

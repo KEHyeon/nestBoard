@@ -39,6 +39,6 @@ export class ResCreateBoardDto {
   modifier: string;
 
   @Expose()
-  @ApiProperty({ type: Image })
+  @ApiProperty({ type: Image, isArray: true })
   images: Image[];
 }
