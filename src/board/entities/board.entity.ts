@@ -27,6 +27,12 @@ export class Board {
   @Column()
   password: string;
 
+  @Column({ default: 0 })
+  like: number;
+
+  @Column({ default: 0 })
+  views: number;
+
   @CreateDateColumn()
   created_at: string;
 

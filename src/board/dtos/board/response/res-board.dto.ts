@@ -16,11 +16,19 @@ export class ResBoardDto {
 
   @Expose()
   @ApiProperty()
+  like: number;
+
+  @Expose()
+  @ApiProperty()
+  viwes: number;
+
+  @Expose()
+  @ApiProperty()
   author: string;
 
   @Expose()
   @ApiProperty()
-  created_at: string;
+  created_at: Date;
 
   @Expose()
   @ApiProperty()

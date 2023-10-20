@@ -36,9 +36,12 @@ import { ApiOkPaginatedResponse, ApiPaginationQuery } from 'nestjs-paginate';
 import { ResCommentDto } from './dtos/comment/response/res-comment.dto';
 import { type } from 'os';
 import { DeleteBoardDto } from './dtos/board/delete-board.dto';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { paginateConfig } from './config/pagination';
 
 @ApiTags('board')
 @Controller('board')
+@SkipThrottle()
 export class BoardController {
   constructor(
     private boardService: BoardService,
@@ -101,26 +104,35 @@ export class BoardController {
     isArray: true,
     type: ResBoardDto,
   })
-  @ApiPaginationQuery({
-    sortableColumns: ['id', 'created_at'],
-    defaultSortBy: [['created_at', 'ASC']],
-    searchableColumns: ['title', 'content'],
-    select: [
-      'id',
-      'title',
-      'content',
-      'author',
-      'modifier',
-      'created_at',
-      'updated_at',
-    ],
-  })
+  @ApiPaginationQuery(paginateConfig)
   @ApiOperation({
     summary: '게시글 리스트 받아오기',
     description: '게시글 리스트 받아오기 api',
   })
   async findAll(@Paginate() query: PaginateQuery) {
     return await this.boardService.findAll(query);
+  }
+
+  @SkipThrottle({ default: false })
+  @Throttle({ default: { limit: 1, ttl: 60000 } })
+  @Post('/like/:id')
+  @ApiOperation({
+    summary: '게시글 좋아요',
+    description: '게시글 좋아요 api',
+  })
+  likePost(@Param('id') id: number) {
+    return this.boardService.likePost(id);
+  }
+
+  @SkipThrottle({ default: false })
+  @Throttle({ default: { limit: 1, ttl: 60000 } })
+  @Post('/view/:id')
+  @ApiOperation({
+    summary: '게시글 조회수 증가',
+    description: '게시글 조회수 증가 api',
+  })
+  viewPost(@Param('id') id: number) {
+    return this.boardService.viewPost(id);
   }
 
   @ApiCreatedResponse({
@@ -134,7 +146,6 @@ export class BoardController {
   async findOne(@Param('id') id: string) {
     return await this.boardService.findOne(parseInt(id));
   }
-
   @Post('/comment/:id')
   @ApiCreatedResponse({
     type: ResCommentDto,

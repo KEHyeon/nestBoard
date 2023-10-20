@@ -5,11 +5,13 @@ import { BoardModule } from './board/board.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Board } from './board/entities/board.entity';
 import { Image } from './board/entities/image.entity';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { Comment } from './board/entities/comment.entity';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+
 @Module({
   imports: [
+    ThrottlerModule.forRoot([{ ttl: 1, limit: 1 }]),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
@@ -23,6 +25,6 @@ import { Comment } from './board/entities/comment.entity';
     BoardModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

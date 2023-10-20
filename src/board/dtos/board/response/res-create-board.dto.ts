@@ -20,7 +20,15 @@ export class ResCreateBoardDto {
 
   @Expose()
   @ApiProperty()
-  created_at: string;
+  created_at: Date;
+
+  @Expose()
+  @ApiProperty()
+  like: number;
+
+  @Expose()
+  @ApiProperty()
+  viwes: number;
 
   @Expose()
   @ApiProperty()

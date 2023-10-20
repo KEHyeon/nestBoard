@@ -14,6 +14,7 @@ import { UpdateBoardDto } from './dtos/board/update-board.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { PaginateQuery, paginate } from 'nestjs-paginate';
+import { paginateConfig } from './config/pagination';
 @Injectable()
 export class BoardService {
   constructor(
@@ -96,19 +97,18 @@ export class BoardService {
   }
 
   async findAll(query: PaginateQuery) {
-    return paginate(query, this.boardRepo, {
-      sortableColumns: ['id', 'created_at'],
-      defaultSortBy: [['created_at', 'ASC']],
-      searchableColumns: ['title', 'content'],
-      select: [
-        'id',
-        'title',
-        'content',
-        'author',
-        'modifier',
-        'created_at',
-        'updated_at',
-      ],
-    });
+    return paginate(query, this.boardRepo, paginateConfig);
+  }
+
+  async likePost(id: number) {
+    const board = await this.findOne(id);
+    await this.boardRepo.update(id, { like: board.like + 1 });
+    return 'ok';
+  }
+
+  async viewPost(id: number) {
+    const board = await this.findOne(id);
+    await this.boardRepo.update(id, { views: board.views + 1 });
+    return 'ok';
   }
 }
