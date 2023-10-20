@@ -25,6 +25,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
+  ApiOperation,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
@@ -50,6 +51,10 @@ export class BoardController {
   @ApiCreatedResponse({
     type: ResCreateBoardDto,
   })
+  @ApiOperation({
+    summary: '게시글 생성',
+    description: '게시글 생성 api',
+  })
   @Serialize(ResCreateBoardDto)
   async createBoard(
     @UploadedFiles() images: Array<Express.Multer.File>,
@@ -67,6 +72,10 @@ export class BoardController {
   @ApiCreatedResponse({
     type: ResCreateBoardDto,
   })
+  @ApiOperation({
+    summary: '게시글 수정',
+    description: '게시글 수정 api',
+  })
   @Serialize(ResCreateBoardDto)
   async updateBoard(
     @UploadedFiles() images: Array<Express.Multer.File>,
@@ -79,6 +88,10 @@ export class BoardController {
   @Delete('/:id')
   @UseInterceptors(BoardIntercepter)
   @ApiBody({ type: DeleteBoardDto })
+  @ApiOperation({
+    summary: '게시글 삭제',
+    description: '게시글 삭제 api',
+  })
   async deleteBoard(@Param('id') id: string) {
     return this.boardService.delete(parseInt(id));
   }
@@ -102,6 +115,10 @@ export class BoardController {
       'updated_at',
     ],
   })
+  @ApiOperation({
+    summary: '게시글 리스트 받아오기',
+    description: '게시글 리스트 받아오기 api',
+  })
   async findAll(@Paginate() query: PaginateQuery) {
     return await this.boardService.findAll(query);
   }
@@ -110,6 +127,10 @@ export class BoardController {
     type: ResCreateBoardDto,
   })
   @Get('/:id')
+  @ApiOperation({
+    summary: '게시글 detail 받아오기',
+    description: '게시글 detail 받아오기 api',
+  })
   async findOne(@Param('id') id: string) {
     return await this.boardService.findOne(parseInt(id));
   }
@@ -120,6 +141,10 @@ export class BoardController {
   })
   @Serialize(ResCommentDto)
   @ApiParam({ name: 'id', description: '댓글 아이디' })
+  @ApiOperation({
+    summary: '게시글 댓글 달기',
+    description: '게시글 댓글 달기 api',
+  })
   async addComment(
     @Param('id') id: string,
     @Body() createCommentDto: CreateCommentDto,
@@ -133,6 +158,10 @@ export class BoardController {
     type: ResCommentDto,
   })
   @ApiParam({ name: 'id', description: '게시글 아이디' })
+  @ApiOperation({
+    summary: '게시글 댓글들 받아오기',
+    description: '게시글 댓글들 받아오기 api',
+  })
   @Serialize(ResCommentDto)
   async getComment(@Param('id') id: string) {
     return await this.commentService.find(parseInt(id));
@@ -140,6 +169,10 @@ export class BoardController {
 
   @Delete('/comment/:id')
   @ApiParam({ name: 'id', description: '댓글 아이디' })
+  @ApiOperation({
+    summary: '댓글 삭제',
+    description: '댓글 삭제 api',
+  })
   async deleteComment(
     @Param('id') id: string,
     @Body() { password }: DeleteCommentDto,
