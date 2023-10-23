@@ -10,6 +10,7 @@ import { CreateCommentDto } from './dtos/comment/create-comment.dto';
 import { BoardService } from './board.service';
 import { Comment } from './entities/comment.entity';
 import * as bcrypt from 'bcryptjs';
+import { UpdateCommentDto } from './dtos/comment/update-comment.dto';
 @Injectable()
 export class CommentService {
   constructor(
@@ -52,5 +53,18 @@ export class CommentService {
       relations: ['comments'],
     });
     return board.comments;
+  }
+
+  async update(id: number, updateCommentDto: UpdateCommentDto) {
+    const comment = await this.commentRepo.findOneBy({ id });
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    if (!(await bcrypt.compare(updateCommentDto.password, comment.password))) {
+      throw new UnauthorizedException('incorrect password');
+    }
+    updateCommentDto.password = comment.password;
+    await this.commentRepo.update(id, updateCommentDto);
+    return this.commentRepo.findOneBy({ id });
   }
 }

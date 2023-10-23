@@ -38,6 +38,7 @@ import { type } from 'os';
 import { DeleteBoardDto } from './dtos/board/delete-board.dto';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { paginateConfig } from './config/pagination';
+import { UpdateCommentDto } from './dtos/comment/update-comment.dto';
 
 @ApiTags('board')
 @Controller('board')
@@ -200,5 +201,18 @@ export class BoardController {
     @Body() { password }: DeleteCommentDto,
   ) {
     return await this.commentService.delete(parseInt(id), password);
+  }
+
+  @Patch('/comment/:id')
+  @ApiParam({ name: 'id', description: '댓글 아이디' })
+  @ApiOperation({
+    summary: '댓글 수정',
+    description: '댓글 수정 api',
+  })
+  async updateComment(
+    @Param('id') id: string,
+    @Body() updateCommentDto: UpdateCommentDto,
+  ) {
+    return await this.commentService.update(parseInt(id), updateCommentDto);
   }
 }
