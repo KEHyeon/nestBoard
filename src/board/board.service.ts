@@ -66,7 +66,6 @@ export class BoardService {
     );
     updateBoardDto.password = board.password;
     const url = 'http://localhost:8000/board/';
-    console.log(updateBoardDto);
     await Promise.all([
       images?.map((image) => {
         const createImg = this.imageRepo.create({

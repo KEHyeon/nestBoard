@@ -14,7 +14,6 @@ export class BoardIntercepter implements NestInterceptor {
   constructor(private boardService: BoardService) {}
   async intercept(context: ExecutionContext, next: CallHandler<any>) {
     const request = context.switchToHttp().getRequest();
-    console.log(request);
     const id = request.params.id;
     const password = request.body.password;
     if (!password) {

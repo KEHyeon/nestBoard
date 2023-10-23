@@ -28,7 +28,7 @@ export class ResCreateBoardDto {
 
   @Expose()
   @ApiProperty()
-  viwes: number;
+  views: number;
 
   @Expose()
   @ApiProperty()

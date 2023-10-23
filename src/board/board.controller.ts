@@ -96,6 +96,7 @@ export class BoardController {
   async verifyPassword(@Param('id') id: string) {
     return await this.boardService.findOne(parseInt(id));
   }
+
   @Delete('/:id')
   @UseInterceptors(BoardIntercepter)
   @ApiBody({ type: DeleteBoardDto })
@@ -155,6 +156,7 @@ export class BoardController {
   async findOne(@Param('id') id: string) {
     return await this.boardService.findOne(parseInt(id));
   }
+
   @Post('/comment/:id')
   @ApiCreatedResponse({
     type: ResCommentDto,
