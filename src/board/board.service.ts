@@ -53,21 +53,23 @@ export class BoardService {
       where: { id },
       relations: ['images'],
     });
+    if (images.length) {
+      await Promise.all(
+        board.images.map((image) => {
+          const fileName = path.basename(image.path);
+          fs.unlink(`static/board/${fileName}`, (err) => {
+            if (err) throw err;
+          });
+          return this.imageRepo.delete(image.id);
+        }),
+      );
+    }
 
-    await Promise.all(
-      board.images.map((image) => {
-        const fileName = path.basename(image.path);
-        fs.unlink(`static/board/${fileName}`, (err) => {
-          if (err) throw err;
-        });
-        this.imageRepo.delete(image.id);
-        return;
-      }),
-    );
     updateBoardDto.password = board.password;
     const url = 'http://localhost:8000/board/';
+
     await Promise.all([
-      images?.map((image) => {
+      ...images.map((image) => {
         const createImg = this.imageRepo.create({
           board,
           path: url + image.filename,
