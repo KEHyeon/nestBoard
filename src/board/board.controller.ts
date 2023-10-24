@@ -7,9 +7,8 @@ import {
   Param,
   UploadedFiles,
   UseInterceptors,
-  UseGuards,
   Delete,
-  Query,
+  Req,
 } from '@nestjs/common';
 import { CreateBoardDto } from './dtos/board/create-board.dto';
 import { BoardService } from './board.service';
@@ -32,17 +31,15 @@ import {
 import { ResCreateBoardDto } from './dtos/board/response/res-create-board.dto';
 import { Serialize } from './intercepters/serailize.interceptor';
 import { ResBoardDto } from './dtos/board/response/res-board.dto';
-import { ApiOkPaginatedResponse, ApiPaginationQuery } from 'nestjs-paginate';
+import { ApiPaginationQuery } from 'nestjs-paginate';
 import { ResCommentDto } from './dtos/comment/response/res-comment.dto';
-import { type } from 'os';
 import { DeleteBoardDto } from './dtos/board/delete-board.dto';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { paginateConfig } from './config/pagination';
 import { UpdateCommentDto } from './dtos/comment/update-comment.dto';
-
+import { Request } from 'express';
 @ApiTags('board')
 @Controller('board')
-@SkipThrottle()
 export class BoardController {
   constructor(
     private boardService: BoardService,
@@ -122,27 +119,25 @@ export class BoardController {
   async findAll(@Paginate() query: PaginateQuery) {
     return await this.boardService.findAll(query);
   }
-
-  @SkipThrottle({ default: false })
-  @Throttle({ default: { limit: 1, ttl: 60000 } })
   @Post('/like/:id')
   @ApiOperation({
     summary: '게시글 좋아요',
-    description: '게시글 좋아요 api 1분당 한 번',
+    description: '게시글 좋아요 ip당 1번',
   })
-  likePost(@Param('id') id: number) {
-    return this.boardService.likePost(id);
+  likePost(@Param('id') id: string, @Req() request: Request) {
+    return this.boardService.likePost(parseInt(id), request.ip);
   }
 
-  @SkipThrottle({ default: false })
-  @Throttle({ default: { limit: 1, ttl: 60000 } })
   @Post('/view/:id')
   @ApiOperation({
     summary: '게시글 조회수 증가',
     description: '게시글 조회수 증가 api 1분당 한 번',
   })
-  viewPost(@Param('id') id: number) {
-    return this.boardService.viewPost(id);
+  async viewPost(@Param('id') id: string, @Req() request: Request) {
+    return await this.boardService.increaseViewsOncePerHour(
+      parseInt(id),
+      request.ip,
+    );
   }
 
   @ApiCreatedResponse({

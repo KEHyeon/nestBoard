@@ -15,11 +15,16 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { PaginateQuery, paginate } from 'nestjs-paginate';
 import { paginateConfig } from './config/pagination';
+import { ViewLog } from './entities/viewLog.entity';
+import { ThrottlerException } from '@nestjs/throttler';
+import { LikeLog } from './entities/likeLog.entity';
 @Injectable()
 export class BoardService {
   constructor(
     @InjectRepository(Board) private boardRepo: Repository<Board>,
     @InjectRepository(Image) private imageRepo: Repository<Image>,
+    @InjectRepository(ViewLog) private viewLogRepo: Repository<ViewLog>,
+    @InjectRepository(LikeLog) private likeLogRepo: Repository<ViewLog>,
   ) {}
 
   async create(images: Express.Multer.File[], createBoardDto: CreateBoardDto) {
@@ -102,15 +107,55 @@ export class BoardService {
     return paginate(query, this.boardRepo, paginateConfig);
   }
 
-  async likePost(id: number) {
-    const board = await this.findOne(id);
-    await this.boardRepo.update(id, { like: board.like + 1 });
+  async likePost(boardId: number, userIP) {
+    const board = await this.findOne(boardId);
+    const likeLog = await this.likeLogRepo.findOne({
+      where: {
+        boardId,
+        userIP,
+      },
+    });
+    if (likeLog) {
+      throw new ThrottlerException('Too many request');
+    }
+    board.like += 1;
+    const newViewLog = this.likeLogRepo.create({
+      boardId,
+      userIP,
+    });
+    await this.likeLogRepo.save(newViewLog);
+    await this.boardRepo.save(board);
     return 'ok';
   }
 
-  async viewPost(id: number) {
-    const board = await this.findOne(id);
-    await this.boardRepo.update(id, { views: board.views + 1 });
+  async increaseViewsOncePerHour(boardId: number, userIP: string) {
+    const board = await this.findOne(boardId);
+    const lastViewLog = await this.viewLogRepo.findOne({
+      where: {
+        boardId,
+        userIP,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+    if (lastViewLog && !this.isMoreThanOneHourAgo(lastViewLog.createdAt)) {
+      throw new ThrottlerException('Too many request');
+    }
+    board.views += 1;
+    const newViewLog = this.viewLogRepo.create({
+      boardId,
+      userIP,
+    });
+    await this.viewLogRepo.save(newViewLog);
+    await this.boardRepo.save(board);
     return 'ok';
+  }
+
+  private isMoreThanOneHourAgo(createdAt: Date): boolean {
+    const now = new Date();
+    const diffInMilliseconds = now.getTime() - createdAt.getTime();
+    const diffInHours = diffInMilliseconds / (1000 * 60 * 60);
+    return diffInHours >= 1;
   }
 }

@@ -9,6 +9,8 @@ import {
 import { Image } from './image.entity';
 import { Comment } from './comment.entity';
 import { Exclude } from 'class-transformer';
+import { ViewLog } from './viewLog.entity';
+import { LikeLog } from './likeLog.entity';
 
 @Entity()
 export class Board {
@@ -51,4 +53,14 @@ export class Board {
     cascade: true,
   })
   comments: Comment[];
+
+  @OneToMany(() => ViewLog, (viewlog) => viewlog.board, {
+    cascade: true,
+  })
+  viewLogs: ViewLog[];
+
+  @OneToMany(() => LikeLog, (likelog) => likelog.board, {
+    cascade: true,
+  })
+  likes: LikeLog[];
 }

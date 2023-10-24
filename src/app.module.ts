@@ -9,6 +9,8 @@ import { Comment } from './board/entities/comment.entity';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ViewLog } from './board/entities/viewLog.entity';
+import { LikeLog } from './board/entities/likeLog.entity';
 
 @Module({
   imports: [
@@ -16,7 +18,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       cache: true,
       isGlobal: true,
     }),
-    ThrottlerModule.forRoot([{ ttl: 1, limit: 1 }]),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
@@ -27,7 +28,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           username: config.get<string>('MYSQL_USERNAME', 'root'),
           password: config.get<string>('MYSQL_PASSWORD', '1234'),
           database: config.get<string>('MYSQL_DB_NAME', 'board'),
-          entities: [Board, Comment, Image],
+          entities: [Board, Comment, Image, ViewLog, LikeLog],
           synchronize: true,
         };
       },
@@ -35,6 +36,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     BoardModule,
   ],
   controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [AppService],
 })
 export class AppModule {}
