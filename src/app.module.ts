@@ -8,19 +8,29 @@ import { Image } from './board/entities/image.entity';
 import { Comment } from './board/entities/comment.entity';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      cache: true,
+      isGlobal: true,
+    }),
     ThrottlerModule.forRoot([{ ttl: 1, limit: 1 }]),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '1234',
-      database: 'board',
-      synchronize: true,
-      entities: [Board, Image, Comment],
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        return {
+          type: 'mysql',
+          host: config.get<string>('MYSQL_HOST', 'mysql'),
+          port: config.get<number>('MYSQL_PORT', 3306),
+          username: config.get<string>('MYSQL_USERNAME', 'root'),
+          password: config.get<string>('MYSQL_PASSWORD', '1234'),
+          database: config.get<string>('MYSQL_DB_NAME', 'board'),
+          entities: [Board, Comment, Image],
+          synchronize: true,
+        };
+      },
     }),
     BoardModule,
   ],

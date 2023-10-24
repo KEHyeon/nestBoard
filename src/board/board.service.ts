@@ -53,7 +53,7 @@ export class BoardService {
       where: { id },
       relations: ['images'],
     });
-    if (images.length) {
+    if (updateBoardDto.images != undefined) {
       await Promise.all(
         board.images.map((image) => {
           const fileName = path.basename(image.path);
@@ -68,6 +68,9 @@ export class BoardService {
     updateBoardDto.password = board.password;
     const url = 'http://localhost:8000/board/';
 
+    console.log(updateBoardDto);
+    delete updateBoardDto.images;
+    console.log(updateBoardDto);
     await Promise.all([
       ...images.map((image) => {
         const createImg = this.imageRepo.create({

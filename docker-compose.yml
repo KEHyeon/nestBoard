@@ -1,9 +1,11 @@
 version: '3.7'
 services:
   nest:
-    image: nest
+    image: th2912/nestboard
     ports:
       - '8000:8000'
+    env_file:
+      - .env
     depends_on:
       - mysql
     networks:
@@ -13,8 +15,6 @@ services:
     volumes:
       - db:/var/lib/mysql
     environment:
-      - MYSQL_PASSWORD=1234
-      - MYSQL_USER=root
       - MYSQL_ROOT_PASSWORD=1234
       - MYSQL_DATABASE=board
     ports:
