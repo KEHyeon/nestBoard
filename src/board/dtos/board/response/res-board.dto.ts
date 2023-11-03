@@ -1,6 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { Image } from 'src/board/entities/image.entity';
+
+class Thumbnail {
+  @ApiProperty()
+  path: string;
+  @ApiProperty()
+  id: number;
+  @ApiProperty()
+  created_at: Date;
+}
+
 export class ResBoardDto {
   @ApiProperty()
   @Expose()
@@ -37,4 +47,8 @@ export class ResBoardDto {
   @Expose()
   @ApiProperty()
   modifier: string;
+
+  @Expose()
+  @ApiProperty({ type: Thumbnail })
+  thumbnail: Thumbnail;
 }

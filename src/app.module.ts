@@ -6,8 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Board } from './board/entities/board.entity';
 import { Image } from './board/entities/image.entity';
 import { Comment } from './board/entities/comment.entity';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ViewLog } from './board/entities/viewLog.entity';
 import { LikeLog } from './board/entities/likeLog.entity';
@@ -20,7 +18,7 @@ import { LikeLog } from './board/entities/likeLog.entity';
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
+      useFactory: async (config: ConfigService) => {
         return {
           type: 'mysql',
           host: config.get<string>('MYSQL_HOST', 'mysql'),

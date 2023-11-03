@@ -104,7 +104,20 @@ export class BoardService {
   }
 
   async findAll(query: PaginateQuery) {
-    return paginate(query, this.boardRepo, paginateConfig);
+    const boards = await paginate(query, this.boardRepo, paginateConfig);
+    const data = await Promise.all(
+      boards.data.map(async (board) => {
+        const thumbnail = await this.imageRepo.findOne({
+          where: { board: { id: board.id } },
+          order: {
+            id: 'ASC',
+          },
+        });
+        return { ...board, thumbnail };
+      }),
+    );
+    boards.data = data;
+    return boards;
   }
 
   async likePost(boardId: number, userIP) {
