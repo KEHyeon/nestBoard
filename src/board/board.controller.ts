@@ -128,6 +128,15 @@ export class BoardController {
     return this.boardService.likePost(parseInt(id), request.ip);
   }
 
+  @Post('/like/check/:id')
+  @ApiOperation({
+    summary: '게시글 좋아요 확인',
+    description: '게시글 좋아요 ip당 1번',
+  })
+  islikedPost(@Param('id') id: string, @Req() request: Request) {
+    return this.boardService.isLikedPost(parseInt(id), request.ip);
+  }
+
   @Post('/view/:id')
   @ApiOperation({
     summary: '게시글 조회수 증가',

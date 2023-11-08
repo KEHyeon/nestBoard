@@ -141,6 +141,16 @@ export class BoardService {
     return 'ok';
   }
 
+  async isLikedPost(boardId: number, userIP) {
+    const board = await this.findOne(boardId);
+    const likeLog = await this.likeLogRepo.findOne({
+      where: {
+        boardId,
+        userIP,
+      },
+    });
+    return likeLog ? true : false;
+  }
   async increaseViewsOncePerHour(boardId: number, userIP: string) {
     const board = await this.findOne(boardId);
     const lastViewLog = await this.viewLogRepo.findOne({
